@@ -7,7 +7,7 @@ outcome = "OUTCOME"
 state = "FOR"
 give = "GIVEN"
 table = "TABLE"
-
+files = [file1, file2, file3]
 import xml.dom.minidom
 from RandomVariables import rv, Table
 
@@ -44,6 +44,7 @@ def getDefinitions(root, rvs):
         tableitems = parseTableTag(tag.getElementsByTagName(table)[0])
         curtable = Table(rvs[statename], [rvs[n] for n in evidencerv], tableitems)
         rvs[statename].addproba(curtable)
+        [rvs[statename].addParentNode(rvs[n]) for n in evidencerv]
 
     definitions = []
     for i in root.getElementsByTagName("DEFINITION"):
@@ -77,15 +78,11 @@ def parseFile(filename):
     return rvs
 
 
-# testFunction
-def test():
-    rvs = parseFile(file3)
-    return rvs
-
-
-for file in [file1, file2, file3]:
+for file in files:
     rvs = parseFile(file)
     for r in rvs.values():
-        for k in r.table.query:
-            print(k)
-    print("%s has been parsed..\n"%file)
+        print(r.name)
+        print(r.parentNodes)
+        for q in r.table.query:
+            print(q)
+    print("%s has been parsed\n\n"%file)
