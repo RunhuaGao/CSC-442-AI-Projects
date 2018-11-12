@@ -9,7 +9,7 @@ give = "GIVEN"
 table = "TABLE"
 files = [file1, file2, file3]
 import xml.dom.minidom
-from RandomVariables import rv, Table
+from RandomVariables import rv, Table, baysnet
 
 
 # return a parser document root element
@@ -26,30 +26,29 @@ def getVariables(root):
         domain = []
         for k in tag.getElementsByTagName(outcome):
             domain.append(k.firstChild.data)
-        return variablename, rv(variablename, domain)
+        return rv(variablename, domain)
 
-    vas = {}
+    vas = []
     for tag in root.getElementsByTagName(va):
-        name, randomvariable = parseVariableTag(tag)
-        vas[name] = randomvariable
-    return vas
+        randomvariable = parseVariableTag(tag)
+        vas.append(randomvariable)
+    net = baysnet(rvs=vas)
+    return net
 
 
-def getDefinitions(root, rvs):
+def getDefinitions(root, baysnet):
     def parseDefinitionTag(tag):
         statename = tag.getElementsByTagName(state)[0].firstChild.data
         evidencerv = []
         for k in tag.getElementsByTagName(give):
             evidencerv.append(k.firstChild.data)
         tableitems = parseTableTag(tag.getElementsByTagName(table)[0])
-        curtable = Table(rvs[statename], [rvs[n] for n in evidencerv], tableitems)
-        rvs[statename].addproba(curtable)
-        [rvs[statename].addParentNode(rvs[n]) for n in evidencerv]
+        curtable = Table(baysnet[statename], [baysnet[n] for n in evidencerv], tableitems)
+        baysnet[statename].addproba(curtable)
+        [baysnet[statename].addParentNode(baysnet[n]) for n in evidencerv]
 
-    definitions = []
     for i in root.getElementsByTagName("DEFINITION"):
-        definitions.append(parseDefinitionTag(i))
-    return definitions
+        parseDefinitionTag(i)
 
 
 # parse the Table tag
@@ -73,16 +72,18 @@ def parseTable(tableitems):
 # main function, build the node graph from xml file,return all nodes
 def parseFile(filename):
     root = parser(filename)
-    rvs = getVariables(root)
-    getDefinitions(root, rvs)
-    return rvs
+    net = getVariables(root)
+    getDefinitions(root, net)
+    return net
 
 
-for file in files:
-    rvs = parseFile(file)
-    for r in rvs.values():
-        print(r.name)
-        print(r.parentNodes)
-        for q in r.table.query:
-            print(q)
-    print("%s has been parsed\n\n"%file)
+# test function, print all query in three files
+# for file in files:
+#     net = parseFile(file)
+#     for r in net.values:
+#         print(r.name)
+#         print(r.parentNodes)
+#         for q in r.table.query:
+#             print(q)
+#     print("%s has been parsed\n\n" % file)
+
