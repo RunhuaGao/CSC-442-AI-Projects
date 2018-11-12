@@ -1,9 +1,33 @@
+# class bayes net
+# only a data abstraction to store all random variables
+class baysnet:
+    def __init__(self, rvs=None):
+        self._variablesinorder = []
+        self.variablesroom = {}
+        if rvs:
+            for r in rvs:
+                self.addvariable(r)
+
+    def addvariable(self, va):
+        assert isinstance(va,rv)
+        self._variablesinorder.append(va)
+        self.variablesroom[va.name] = va
+
+    @property
+    def values(self):
+        return self._variablesinorder
+
+    def __getitem__(self, item):
+        assert item in self.variablesroom
+        return self.variablesroom[item]
+
+
 class rv:
     def __init__(self, name, domain):
         self.name = name
-        self.domain = [self.evalstate(k) for k in domain]
-        self.netproba = None
+        self.domain = [self.evaluate(k) for k in domain]
         self.parentNodes = []
+        self.parents = set()
 
     def __eq__(self, other):
         return other.name == self.name
@@ -12,8 +36,8 @@ class rv:
         return self.name
 
     def addParentNode(self, parentnode):
-        assert type(parentnode) == rv
         self.parentNodes.append(parentnode)
+        self.parents.add(parentnode.name)
 
     # get kth probability of random variable's domain
     def kthproba(self, k):
@@ -34,7 +58,7 @@ class rv:
         return {self.name: self.kthproba(k)}
 
     # evaluate the state and return its correspond status in domain
-    def evalstate(self, state):
+    def evaluate(self, state):
         if state == self.name:
             return True
         elif state[1:] == self.name:
@@ -44,8 +68,43 @@ class rv:
         elif state == "false":
             return False
 
+    def calProba(self, value, evidence):
+        event = self.evidence_values(evidence)
+        assert len(event) == len(self.parentNodes), "The evidence offered is not legal"
+        for query in self.table.query:
+            currvalue = query["state"]
+            currevidence = query["evidence"]
+            if currvalue == value and currevidence == event:
+                return query["probability"]
+        print("The evidence offered is not legal")
 
-# Table Item, for a specific variable A, Given evidence,
+    def evidence_values(self, event):
+        result = {}
+        for key in self.parents:
+            if key not in event:
+                raise KeyError("Key absent in parentnodes")
+            result[key] = event[key]
+        return result
+
+    @classmethod
+    def consistent(cls, event1, event2):
+        if not event1 or not event2:
+            return True
+        else:
+            for key, value in event1.items():
+                if key in event2 and event2[key] != value:
+                    return False
+            return True
+
+    @classmethod
+    def normalize(cls, probdict):
+        assert probdict
+        summation = sum(probdict.values())
+        for key in probdict:
+            value = probdict[key]
+            probdict[key] /= summation
+
+
 # offer the Probability distribution of A
 class Table:
     def __init__(self, state, given, items):
@@ -53,18 +112,14 @@ class Table:
         self.given = given
         self.processItem(items)
 
-    def addItem(self, evidence, proba):
-        currentitem = [evidence, proba]
-        self.item.append(currentitem)
-
     # Process the data from xml file
     def processItem(self, items):
         if len(self.given) == 0:
             self.query = []
             for i, v in enumerate([eval(k) for k in items[0].split()]):
                 currquery = {}
-                currquery["node"] = self.state.state(i)
-                currquery["evidence"] = None
+                currquery["state"] = self.state.kthproba(i)
+                currquery["evidence"] = {}
                 currquery["probability"] = v
                 self.query.append(currquery)
         elif len(items) == 1:
@@ -97,9 +152,9 @@ class Table:
             probas = items[index + 1]
             for i in range(len(probas)):
                 currquery = {}
-                currquery["node"] = self.state.state(i)
+                currquery["state"] = self.state.kthproba(i)
                 currquery["probability"] = eval(probas[i])
-                currquery["evidence"] = {self.given[v].name: self.given[v].evalstate(evidence[v])
+                currquery["evidence"] = {str(self.given[v].name): self.given[v].evaluate(evidence[v])
                                          for v in range(len(evidence))}
                 self.query.append(currquery)
             index += 2
@@ -126,15 +181,14 @@ class Table:
 # create a query data structure: in format:
 # {"node":currentnode,"Evidence:evidence and their states,"probability":the probability}
 def createquery(node, nodestate, evidence, evidencestate, proba):
-    assert type(node) == rv, "node is %s" % node
-    for r in evidence:
-        assert type(r) == rv
-    node = node.state(nodestate)
+    # for r in evidence:
+    #     assert type(r) == rv
+    nodestate = node.kthproba(nodestate)
     assert len(evidence) == len(evidencestate)
     newevidence = {}
     for i in range(len(evidence)):
         currnode = evidence[i]
         state = currnode.kthproba(evidencestate[i])
-        newevidence[currnode.name] = state
-    query = {"node": node, "evidence": newevidence, "probability": proba}
+        newevidence[str(currnode.name)] = state
+    query = {"state": nodestate, "evidence": newevidence, "probability": proba}
     return query
