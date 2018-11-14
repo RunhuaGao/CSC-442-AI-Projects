@@ -46,6 +46,7 @@ def getDefinitions(root, baysnet):
         curtable = Table(baysnet[statename], [baysnet[n] for n in evidencerv], tableitems)
         baysnet[statename].addproba(curtable)
         [baysnet[statename].addParentNode(baysnet[n]) for n in evidencerv]
+        [baysnet[n].addChildNode(baysnet[statename]) for n in evidencerv]
 
     for i in root.getElementsByTagName("DEFINITION"):
         parseDefinitionTag(i)
@@ -80,10 +81,9 @@ def parseFile(filename):
 # test function, print all query in three files
 # for file in files:
 #     net = parseFile(file)
-#     for r in net.values:
+#     for r in net.nodes:
 #         print(r.name)
 #         print(r.parentNodes)
 #         for q in r.table.query:
 #             print(q)
 #     print("%s has been parsed\n\n" % file)
-

@@ -8,9 +8,10 @@ def enumerate(queryvariable, evidence, bayesnet):
     assert queryvariable not in evidence
     Q = dict()
     for i in bayesnet[queryvariable].domain:
-        Q[i] = enumerateall(bayesnet.values, extend(evidence, queryvariable, i))
+        Q[i] = enumerateall(bayesnet.nodes, extend(evidence, queryvariable, i))
     rv.normalize(Q)
     return Q
+
 
 def enumerateall(vars, evidence):
     if not vars:
@@ -37,9 +38,6 @@ def normalize(iterablevalue):
     return 0
 
 
-def test():
-    rv1 = parseFile(files[0])
-    print(enumerate("A", {"J": False,"M":False}, rv1))
-
-
-test()
+net1 = parseFile(files[0])
+net2 = parseFile(files[1])
+net3 = parseFile(files[2])

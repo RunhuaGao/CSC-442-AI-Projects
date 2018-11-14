@@ -1,25 +1,44 @@
+from random import uniform
+
+
+def probability(p):
+    """
+    :param p: The probability
+    :return: True or False, the value of for a random variable
+    """
+    return p > uniform(0.0, 1.0)
+
+
 # class bayes net
 # only a data abstraction to store all random variables
 class baysnet:
     def __init__(self, rvs=None):
-        self._variablesinorder = []
         self.variablesroom = {}
         if rvs:
             for r in rvs:
                 self.addvariable(r)
 
     def addvariable(self, va):
-        assert isinstance(va,rv)
-        self._variablesinorder.append(va)
+        assert isinstance(va, rv)
         self.variablesroom[va.name] = va
-
-    @property
-    def values(self):
-        return self._variablesinorder
 
     def __getitem__(self, item):
         assert item in self.variablesroom
         return self.variablesroom[item]
+
+    @property
+    def nodes(self):
+        currlevel = [r.name for r in self.variablesroom.values() if len(r.parents) == 0]
+        size = len(self.variablesroom)
+        result = []
+        while len(result) < size:
+            result.extend(currlevel)
+            if len(currlevel) > 0:
+                nodes = set()
+                for node in currlevel:
+                    nodes = nodes.union(self.variablesroom[node].children)
+                currlevel = nodes
+        return [self.variablesroom[key] for key in result]
 
 
 class rv:
@@ -28,6 +47,8 @@ class rv:
         self.domain = [self.evaluate(k) for k in domain]
         self.parentNodes = []
         self.parents = set()
+        self.childNodes = []
+        self.children = set()
 
     def __eq__(self, other):
         return other.name == self.name
@@ -38,6 +59,10 @@ class rv:
     def addParentNode(self, parentnode):
         self.parentNodes.append(parentnode)
         self.parents.add(parentnode.name)
+
+    def addChildNode(self, childNode):
+        self.childNodes.append(childNode)
+        self.children.add(childNode.name)
 
     # get kth probability of random variable's domain
     def kthproba(self, k):
@@ -52,10 +77,6 @@ class rv:
     # return the size of random variable's domain
     def domainsize(self):
         return len(self.domain)
-
-    # return a query component by k
-    def state(self, k):
-        return {self.name: self.kthproba(k)}
 
     # evaluate the state and return its correspond status in domain
     def evaluate(self, state):
@@ -86,22 +107,18 @@ class rv:
             result[key] = event[key]
         return result
 
-    @classmethod
-    def consistent(cls, event1, event2):
-        if not event1 or not event2:
-            return True
-        else:
-            for key, value in event1.items():
-                if key in event2 and event2[key] != value:
-                    return False
-            return True
+    def sample(self, event):
+        """
+        :param event: the observable evidence
+        :return: the True or False randomly based on the event
+        """
+        return probability(self.calProba(True, event))
 
     @classmethod
     def normalize(cls, probdict):
         assert probdict
         summation = sum(probdict.values())
         for key in probdict:
-            value = probdict[key]
             probdict[key] /= summation
 
 
