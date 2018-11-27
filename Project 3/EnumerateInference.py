@@ -1,7 +1,7 @@
 # example file 1
-from xmlParser import parseFile, files
 from xmlParser import rv
-
+from RunProgram import processInput
+import sys
 
 def enumerate(queryvariable, evidence, bayesnet):
     # make sure query not in evidence
@@ -24,7 +24,8 @@ def enumerateall(vars, evidence):
         else:
             summation = 0
             for value in first.domain:
-                summation += first.calProba(value, evidence) * enumerateall(rest, extend(evidence, first.name, value))
+                summation += first.calProba(value, evidence) * enumerateall(rest,
+                                                                extend(evidence, first.name, value))
             return summation
 
 
@@ -33,11 +34,7 @@ def extend(original, variable, value):
     result[variable] = value
     return result
 
-
-def normalize(iterablevalue):
-    return 0
-
-
-net1 = parseFile(files[0])
-net2 = parseFile(files[1])
-net3 = parseFile(files[2])
+if __name__ == "__main__":
+    net,query,evidence = processInput(sys.argv)
+    distribution = enumerate(query,evidence,net)
+    print(distribution)

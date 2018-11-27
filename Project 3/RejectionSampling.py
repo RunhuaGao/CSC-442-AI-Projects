@@ -1,16 +1,16 @@
 # Prior sample utility function
 from RandomVariables import rv
-from EnumerateInference import net1, net2, net3
-
+from RunProgram import processInput
+import sys
 
 def priorsample(bayesnet):
     event = {}
     for node in bayesnet.nodes:
-        event[node.name] = node.sample(event)
+        event[str(node.name)] = node.sample(event)
     return event
 
 
-def rejectionsample(query, event, bayesnet, N):
+def rejectionsample(query, evidence, bayesnet, N):
     """
     :param query: the query variable
     :param event: the evidence
@@ -21,7 +21,7 @@ def rejectionsample(query, event, bayesnet, N):
     distribute = {status: 0 for status in bayesnet[query].domain}
     for _ in range(N):
         sample = priorsample(bayesnet)
-        if consistent(sample, event):
+        if consistent(sample, evidence):
             distribute[sample[query]] += 1
     rv.normalize(distribute)
     return distribute
@@ -34,10 +34,13 @@ def consistent(sample, event):
     :return: if the sample generated consistent with event
     """
     for key, value in event.items():
-        if sample.get(key, value) != value:
-            return False
+        if sample[key]!=value:return False
     return True
 
 
-k = rejectionsample("A", {"B": True, "E": False}, net1, 50000)
-print(k)
+
+if __name__ == "__main__":
+    defaultN = 25000
+    net,query,evidence = processInput(sys.argv)
+    distribution = rejectionsample(query,evidence,net,defaultN)
+    print(distribution)

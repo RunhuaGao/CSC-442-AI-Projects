@@ -78,7 +78,7 @@ def parseFile(filename):
     return net
 
 
-# test function, print all query in three files
+# # test function, print all query in three files
 # for file in files:
 #     net = parseFile(file)
 #     for r in net.nodes:

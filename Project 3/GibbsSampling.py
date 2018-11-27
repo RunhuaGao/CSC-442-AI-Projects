@@ -1,6 +1,8 @@
 from random import choice
-from EnumerateInference import extend, net1, net2, net3
 from RandomVariables import rv, probability
+from RunProgram import processInput
+from EnumerateInference import extend
+import sys
 
 
 def gibbssampling(query, evidence, bayesnet, N):
@@ -36,5 +38,8 @@ def calProduct(nums):
     return result
 
 
-a, b = gibbssampling("dog-out", {"bowel-problem": True, "family-out": True}, net3, 25000)
-print(b)
+if __name__ == "__main__":
+    defaultN = 25000
+    net,query,evidence = processInput(sys.argv)
+    distribution = gibbssampling(query,evidence,net,defaultN)
+    print(distribution)

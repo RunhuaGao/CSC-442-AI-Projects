@@ -107,7 +107,7 @@ class rv:
             result[key] = event[key]
         return result
 
-    def sample(self, event):
+    def sample(self, event): # to be updated
         """
         :param event: the observable evidence
         :return: the True or False randomly based on the event
@@ -119,7 +119,7 @@ class rv:
         assert probdict
         summation = sum(probdict.values())
         for key in probdict:
-            probdict[key] /= summation
+            probdict[key] = float(probdict[key])/summation
 
 
 # offer the Probability distribution of A
