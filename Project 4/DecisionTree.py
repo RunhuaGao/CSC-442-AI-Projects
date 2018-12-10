@@ -1,12 +1,18 @@
 from math import log
 from DataParser import readfile
 from random import shuffle
-sample = readfile("iris.data.discrete.txt")
+
+iris = readfile("iris.data.discrete.txt")
+restaurant = readfile("AIMA_Restaurant-data.txt")
+cars = readfile("cars.txt")
+
 
 class DecisionTree:
     def __init__(self, examples):
+        shuffle(examples)
         self.examples = examples
         self.defaultype = DecisionTree.getDefaultValue(examples)
+
     @property
     def datasize(self):
         return len(self.examples)
@@ -90,17 +96,16 @@ class DecisionTree:
                 maxvalue = value
         return output
 
-
     @classmethod
-    def getDefaultValue(cls,exmaples):
+    def getDefaultValue(cls, exmaples):
         dic = {}
         for d in exmaples:
             t = d[-1]
-            if t not in dic:dic[t]=0
-            dic[t]+=1
+            if t not in dic: dic[t] = 0
+            dic[t] += 1
         value = max(dic.values())
         for key in dic:
-            if dic[key]==value:return key
+            if dic[key] == value: return key
 
     # implement Figure 18.3's algorithm
     def learning(self, examples, attrs, parentexamples):
@@ -112,7 +117,7 @@ class DecisionTree:
             return DecisionTree.plurality(examples)
         else:
             splitattr = DecisionTree.chooseAttr(examples, attrs)
-            root = DecisionTreeNode(splitattr,self.defaultype)
+            root = DecisionTreeNode(splitattr, self.defaultype)
             for att, exs in DecisionTree.splitDataByAttr(examples, splitattr).items():
                 subtree = self.learning([examples[i] for i in exs],
                                         DecisionTree.deleteattr(attrs, splitattr), examples)
@@ -122,7 +127,7 @@ class DecisionTree:
     @classmethod
     def deleteattr(self, attrs, attr):
         res = attrs.copy()
-        if attr in attrs:res.remove(attr)
+        if attr in attrs: res.remove(attr)
         return res
 
     # Do experiment with cross validation
@@ -134,12 +139,13 @@ class DecisionTree:
             traindata, testdata = validationdata.croosvalidationdata()
             tree = self.learning(traindata, self.initialattrs, traindata)
             errorate += tree.testData(testdata)
+        print("Average error rate is: ", float(errorate / k))
         return float(errorate / k)
 
 
 # Decision tree's node class
 class DecisionTreeNode:
-    def __init__(self, attr,defaultvalue):
+    def __init__(self, attr, defaultvalue):
         self.attr = attr
         self.defaultvalue = defaultvalue
         self.branch = {}
@@ -150,10 +156,8 @@ class DecisionTreeNode:
 
     # print out whole tree with
     def showTree(self, spacenum=0):
-        print("\n\n")
         prefix = " " * spacenum
         print(prefix + "curr attribute is " + str(self.attr))
-        print("\n")
         for key, value in self.branch.items():
             if isinstance(value, DecisionTreeNode):
                 print(prefix + "current value is " + str(key))
@@ -161,14 +165,14 @@ class DecisionTreeNode:
             else:
                 print(prefix + "current value is " + str(key), "classified as " + str(value))
             print(prefix + "--- this branch has printed out, splited by attribute %d" % self.attr)
-            print("\n")
         print(prefix + "whole branches has printed out at attribute %d" % self.attr)
-        print("\n\n")
 
     # evaluating a single data based on the tree
     def evaluatedata(self, data):
         assert self.attr < len(data) - 1
-        if data[self.attr] not in self.branch:return self.defaultvalue
+        # if the tree do not have a branch with value that data has
+        # directly classify it to default type
+        if data[self.attr] not in self.branch: return self.defaultvalue
         nextbranch = self.branch[data[self.attr]]
         if isinstance(nextbranch, DecisionTreeNode):
             return nextbranch.evaluatedata(data)
@@ -184,7 +188,9 @@ class DecisionTreeNode:
         count = 0
         for item in data:
             if not self.__test__(item): count += 1
+        print("Error rate is: ", float(count / len(data)))
         return float(count / len(data))
+
 
 # auxiliary class to split a data set into k pieces to
 # implement cross validation experiment
@@ -199,22 +205,17 @@ class splitData:
 
     def croosvalidationdata(self):
         traindata = self.data[:self.start] \
-                    + self.data[self.start+self.piecesize:]
-        testdata = self.data[self.start:self.start+self.piecesize]
-        self.start+=self.piecesize
-        if self.start==len(self.data):
-            self.start=0
-        return traindata,testdata
+                    + self.data[self.start + self.piecesize:]
+        testdata = self.data[self.start:self.start + self.piecesize]
+        self.start += self.piecesize
+        if self.start == len(self.data):
+            self.start = 0
+        return traindata, testdata
 
 
 
-# Question 1: The decision tree learning based on the data set do not have
-# features that the new evaluating data including
+def docrossvaidation(example,num):
+    dt = DecisionTree(example)
+    dt.crossValidation(num)
 
-# Question 2: How to use the neural network as a classifier, what dose the
-# output layer mean, should I normalization the continuous dataset before training?
-for _ in range(100):
-    shuffle(sample)
-    dt = DecisionTree(sample)
-    k = dt.crossValidation(10)
-    print(k)
+docrossvaidation(cars,27)
