@@ -22,3 +22,4 @@ def readconFile(filename):
 
 
 continuousIris = readconFile("iris.data.txt")
+normalizedIris = readfile("iris.data.txt")

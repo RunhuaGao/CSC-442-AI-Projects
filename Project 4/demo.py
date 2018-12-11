@@ -1,5 +1,33 @@
+import numpy as np
+import random
 from math import e
 from random import shuffle
+from DataParser import continuousIris, normalizedIris
+
+# default study rate
+studyrate = 0.01
+
+# process normalizedIris dataset
+for i in range(len(continuousIris[0]) - 1):
+    cols = [d[i] for d in continuousIris]
+    minvalue, maxvalue = min(cols), max(cols)
+    length = maxvalue - minvalue
+    for d in normalizedIris:
+        d[i] = (eval(d[i]) - minvalue) / length
+
+
+def assignvector(examples):
+    for i in range(len(examples)):
+        if examples[i][-1] == "setosa":
+            examples[i][-1] = [1, 0, 0]
+        elif examples[i][-1] == "versicolor":
+            examples[i][-1] = [0, 1, 0]
+        else:
+            examples[i][-1] = [0, 0, 1]
+
+
+assignvector(continuousIris)
+assignvector(normalizedIris)
 
 
 def sigmoid(x):
@@ -8,16 +36,6 @@ def sigmoid(x):
 
 def sigmoidd(x):
     return x * (1 - x)
-
-
-def loss(output, target):
-    return (output - target) ** 2
-
-
-studyrate = 0.01
-
-import numpy as np
-import random
 
 
 class OutputNode:
@@ -42,42 +60,11 @@ class OutputNode:
         self.bias = random.uniform(0, 1)
 
 
-from DataParser import continuousIris
-
 # shuffle(continuousIris)
-Nodes = [OutputNode(4), OutputNode(4), OutputNode(4)]
-for i in range(len(continuousIris)):
-    if continuousIris[i][-1] == "setosa":
-        continuousIris[i][-1] = [1, 0, 0]
-    elif continuousIris[i][-1] == "versicolor":
-        continuousIris[i][-1] = [0, 1, 0]
-    else:
-        continuousIris[i][-1] = [0, 0, 1]
-
-normalizedIris = continuousIris.copy()
-for i in range(len(continuousIris[0]) - 1):
-    cols = [d[i] for d in continuousIris]
-    minvalue, maxvalue = min(cols), max(cols)
-    length = maxvalue
-    for d in normalizedIris:
-        d[i] = (d[i] - minvalue) / length
-
-
-def test(i):
-    testnode = Nodes[i]
-    shuffle(continuousIris)
-    for d in continuousIris:
-        data, target = d[:-1], d[-1][i]
-        testnode.updateweight(target, data)
-
-    for d in continuousIris:
-        data, target = d[:-1], d[-1][i]
-        out = testnode.output(data)
-        print("Predcit result is : ", out)
-        print("Actual is:", target)
 
 
 def train(times, dataset):
+    Nodes = [OutputNode(4), OutputNode(4), OutputNode(4)]
     for _ in range(times):
         shuffle(dataset)
         for d in dataset:
@@ -100,4 +87,4 @@ def train(times, dataset):
     return count
 
 
-train(1000, normalizedIris)
+# train(300, continuousIris)

@@ -198,7 +198,7 @@ class DecisionTreeNode:
 class splitData:
     def __init__(self, data, k):
         self.data = data
-        assert k > 2 and len(data) % k == 0, \
+        assert len(data) % k == 0, \
             "Please input another proper k to split data set"
         self.piecesize = len(data) // k
         self.start = 0
