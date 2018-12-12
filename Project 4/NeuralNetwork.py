@@ -64,9 +64,9 @@ class OutputNode:
 # shuffle(continuousIris)
 
 
-def train(times, dataset, studyrate):
+def train(trainingtimes, dataset, studyrate):
     Nodes = [OutputNode(4, studyrate), OutputNode(4, studyrate), OutputNode(4, studyrate)]
-    for _ in range(int(times)):
+    for _ in range(int(trainingtimes)):
         shuffle(dataset)
         for d in dataset:
             data, target = d[:-1], d[-1]
