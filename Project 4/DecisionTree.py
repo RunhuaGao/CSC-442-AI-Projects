@@ -218,4 +218,4 @@ def docrossvaidation(example,num):
     dt = DecisionTree(example)
     dt.crossValidation(num)
 
-docrossvaidation(cars,27)
+# docrossvaidation(cars,27)

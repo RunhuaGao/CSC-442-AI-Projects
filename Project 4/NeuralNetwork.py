@@ -1,107 +1,90 @@
-from math import e
 import numpy as np
 import random
+from math import e
+from random import shuffle
+from DataParser import continuousIris, normalizedIris
 
-sigmoid = lambda x: 1 / (1 + e ** (-x))
-loss = lambda x, y: (x - y) ** 2
-sderivation = lambda x: x * (1 - x)
+# default study rate
+studyrate = 0.01
 
-studyrate =0.6
+# process normalizedIris dataset
+for i in range(len(continuousIris[0]) - 1):
+    cols = [d[i] for d in continuousIris]
+    minvalue, maxvalue = min(cols), max(cols)
+    length = maxvalue - minvalue
+    for d in normalizedIris:
+        d[i] = (eval(d[i]) - minvalue) / length
 
 
-class InputLayer:
-    def __init__(self, size):
+def assignvector(examples):
+    for i in range(len(examples)):
+        if examples[i][-1] == "setosa":
+            examples[i][-1] = [1, 0, 0]
+        elif examples[i][-1] == "versicolor":
+            examples[i][-1] = [0, 1, 0]
+        else:
+            examples[i][-1] = [0, 0, 1]
+
+
+assignvector(continuousIris)
+assignvector(normalizedIris)
+
+
+def sigmoid(x):
+    return 1 / (1 + e ** (-x))
+
+
+def sigmoidd(x):
+    return x * (1 - x)
+
+
+class OutputNode:
+    def __init__(self, size, studyrate):
+        self.weights = np.random.rand(1, size)
+        self.bias = random.uniform(0, 1)
         self.size = size
+        self.studyrate = studyrate
 
-    def addlaterlayer(self, layer):
-        self.laterlayer = layer
-        self.weight = np.mat(np.random.rand(self.size, self.laterlayer.size))
-
-    def output(self, data):
-        return np.mat(data)
-
-    def updateweight(self, data, laterdelta):
-        output = self.output(data).T
-        delta = -studyrate * output * laterdelta
-        self.weight += delta
-
-
-class MiddleLayer(InputLayer):
-    def __init__(self, size):
-        InputLayer.__init__(self, size)
-
-    def addformerlayer(self, layer):
-        self.formerlayer = layer
+    def updateweight(self, targetvalue, data):
+        actual = self.output(data)
+        deltaWeight = (targetvalue - actual) * sigmoidd(actual)
+        for i in range(self.size):
+            self.weights[0, i] += self.studyrate * deltaWeight * data[i]
+            self.bias += deltaWeight * self.studyrate
 
     def output(self, data):
-        sum = np.dot(self.formerlayer.output(data), self.formerlayer.weight)
-        res = []
-        for i in range(sum.shape[1]):
-            res.append(sigmoid(sum[0, i]))
-        return np.mat(res)
+        currdata = np.array(data)
+        return sigmoid(np.sum(currdata * self.weights) + self.bias)
 
-    def updateweight(self, data, target):
-        delta = -studyrate * np.multiply(self.output(data).T,
-                                         self.laterlayer.errorderivation(data, target))
-        self.weight += delta
+    def setinitial(self):
+        self.weights = np.random.rand(1, self.size)
+        self.bias = random.uniform(0, 1)
 
-    def errorderivation(self, laterdelta, data):
-        output = self.output(data)
-        other = np.mat(np.ones(output.shape)) - output
-        res = np.multiply(output, other)
-        res1 = self.weight * laterdelta.T
-        return np.multiply(res1.T, res)
-
-
-class OutputLayer(MiddleLayer):
-    def __init__(self, size):
-        MiddleLayer.__init__(self, size)
-
-    def errorderivation(self, data, target):
-        output = self.output(data)
-        lossmat = output - np.mat(target)
-        res = np.multiply(lossmat, output)
-        other = np.mat(np.ones(output.shape))
-        other = other - output
-        return np.multiply(res, other)
-
-
-from DataParser import continuousIris
 
 # shuffle(continuousIris)
-for i in range(len(continuousIris)):
-    if continuousIris[i][-1] == "setosa":
-        continuousIris[i][-1] = [1, 0, 0]
-    elif continuousIris[i][-1] == "versicolor":
-        continuousIris[i][-1] = [0, 1, 0]
-    else:
-        continuousIris[i][-1] = [0, 0, 1]
-
-inputlayer = InputLayer(4)
-middlelayer = MiddleLayer(2)
-outputlayer = OutputLayer(3)
-inputlayer.addlaterlayer(middlelayer)
-middlelayer.addformerlayer(inputlayer)
-middlelayer.addlaterlayer(outputlayer)
-outputlayer.addformerlayer(middlelayer)
 
 
-def train(examples):
-    for data in examples:
-        d, target = data[:-1], data[-1]
-        outerr = outputlayer.errorderivation(d, target)
-        miderr = middlelayer.errorderivation(outerr, d)
-        inputlayer.updateweight(d, miderr)
-        middlelayer.updateweight(d, outerr)
+def train(times, dataset, studyrate):
+    Nodes = [OutputNode(4, studyrate), OutputNode(4, studyrate), OutputNode(4, studyrate)]
+    for _ in range(int(times)):
+        shuffle(dataset)
+        for d in dataset:
+            data, target = d[:-1], d[-1]
+            for i in range(len(Nodes)):
+                Nodes[i].updateweight(target[i], data)
+    shuffle(dataset)
+    count = 0
+    for d in dataset:
+        data, target = d[:-1], d[-1]
+        output = [node.output(data) for node in Nodes]
 
-        # print("input layer weight is: ",inputlayer.weight)
-        # print("middle layer weight is: ",middlelayer.weight)
+        pre = np.argmax(output) + 1
+        actual = np.argmax(target) + 1
+        if pre != actual: count += 1
+        # print("Predicted type is: ",pre)
+        # print("Actual type is: ",actual)
+    print('Error number is: ', count)
+    [node.setinitial() for node in Nodes]
+    return count
 
-
-    for data in examples:
-        d = data[:-1]
-        print(outputlayer.output(d))
-
-
-
-train(continuousIris)
+# train(300, continuousIris)
