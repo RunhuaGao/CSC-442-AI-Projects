@@ -10,10 +10,14 @@ Back Ground:</br>
     Then Use 'alpha-beta pruning to reduce number of nodes to be searched.
     There exists totally three types of Tic-Tac-Toe Game in this Project.
     1: The normal TTT game.Pawns need to be connected in horizontal, vertical or diagnoal line to get victory.
-    2: Advanced normal Tic-Tac-Toe game. There are totally 9 boards in game as each board is 3x3. For example, the previous player place flag at the fifth board at position 8(5,8), then the next player must place his pawn at eighth board.
+    2: Advanced normal Tic-Tac-Toe game. There are totally 9 boards in game as each board is 3x3. 
+    For example, the previous player place flag at the fifth board at position 8(5,8), 
+    then the next player must place his pawn at eighth board.
     If the next board if already full, then you could pick any board with openings.
     The requirement to win is as same as part1, if you win in one board, then you win.
-    3: Cube Tic-Tac-Toe Game, extend the board(plane) to a cude(4x4x4). The requirement to win is as same as part1, but this time you could also connect 4 pawns in vertical(z direction) to get victory.
+    3: Cube Tic-Tac-Toe Game, extend the board(plane) to a cude(4x4x4). 
+    The requirement to win is as same as part1, 
+    but this time you could also connect 4 pawns in vertical(z direction) to get victory.
    
 Project Structure:</br>
 
