@@ -1,28 +1,11 @@
 CSC 442 Aritificial Intelligence Course Projects
 ===============================
 
-### Project 1: Classical Search Algorithm: Heuristic Minmax algorithm and IDS on Tic-Tac-Toe Game
-__Project Description:__</br>
-Implement __Hminmax algorithm__ in adversarial search problem: Tic-Tac-Toe Game</br>
-Use a well performed __evaluation(heuristic) function__ to estimate the final score of each node at spcific depth</br>
-Perform __alpha-beta pruning__ to reduce number of nodes to be searched.</br></br>
-__Game Rules:__ There are 3 types of TTT games in this Project</br>
->>1: The normal TTT game.Pawns need to be connected in horizontal, vertical or diagnoal line to get victory.</br></br>
->>2: Advanced normal Tic-Tac-Toe game. There are totally 9 boards in game as each board is 3x3.</br> 
-    For example, the previous player place flag at the fifth board at position 8(5,8),</br>
-    then the next player must place his pawn at eighth board.</br>
-    If the next board if already full, then you could pick any board with openings.</br>
-    The requirement to win is as same as part1, if you win in one board, then you win.</br></br>
->>3: Cube Tic-Tac-Toe Game, extend the board(plane) to a cude(4x4x4). 
-    The requirement to win is as same as part1, 
-    but this time you could also connect 4 pawns in vertical(z direction) to get victory.</br></br>
+[Project 1: Classical Search Algorithm: Heuristic Minmax algorithm and IDS on Tic-Tac-Toe Game](https://github.com/RunhuaGao/CSC-442-AI-Projects/blob/master/Project%201/Project%20Report.pdf)
 
-__Data structure:__</br>
-__Game1__: 
-![game1 width=300](https://github.com/RunhuaGao/CSC-442-AI-Projects/blob/master/Project%201/Game1.png)</br>
+[Project 2: Modelchecking & Resolution Algorithm in first order & propositional order logic](https://github.com/RunhuaGao/CSC-442-AI-Projects/blob/master/Project%202/Project%202%20Report%20Runhua%20Gao.pdf)
 
-![game2](https://github.com/RunhuaGao/CSC-442-AI-Projects/blob/master/Project%201/Game2.png)</br>
+[Project 3: Enumeration & Sampling Algorithm in Baysian Network to Estimate Probability distribution](https://github.com/RunhuaGao/CSC-442-AI-Projects/blob/master/Project%203/Project3%20Report%20Runhua%20Gao.pdf)
 
-__Game Screenshot:__</br>
-![screenshot](https://github.com/RunhuaGao/CSC-442-AI-Projects/blob/master/Project%201/GameScreenShot.png)</br>
+[Project 4: Machine Learning Basic: __Decision Tree__ Classification,  __Neural Network__  classifier and parameters optimization](https://github.com/RunhuaGao/CSC-442-AI-Projects/blob/master/Project%204/Project%204%20Report%20Runhua%20Gao.pdf)
 
