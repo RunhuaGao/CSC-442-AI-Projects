@@ -19,8 +19,10 @@ __Game Rules:__ There are 3 types of TTT games in this Project</br>
 
 __Data structure:__</br>
 __Game1__: 
-![game1](https://github.com/RunhuaGao/CSC-442-AI-Projects/blob/master/Project%201/Game1.png)</br>
+![game1 width=300](https://github.com/RunhuaGao/CSC-442-AI-Projects/blob/master/Project%201/Game1.png)</br>
 
 ![game2](https://github.com/RunhuaGao/CSC-442-AI-Projects/blob/master/Project%201/Game2.png)</br>
 
-__Game Screenshot:__</br></br>
+__Game Screenshot:__</br>
+![screenshot](https://github.com/RunhuaGao/CSC-442-AI-Projects/blob/master/Project%201/GameScreenShot.png)</br>
+
